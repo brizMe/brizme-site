@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>brizMe – The AI Layer That Was Missing</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:   #050d1f;
+      --navy2:  #0a1628;
+      --navy3:  #0f1e38;
+      --amber:  #f5a623;
+      --teal:   #2dd4bf;
+      --pink:   #e040a0;
+      --white:  #e8edf5;
+      --muted:  #6b7fa8;
+      --border: rgba(45,212,191,0.18);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--navy);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4 { font-family: 'Syne', sans-serif; }
+
+    /* ── PARTICLE BG ── */
+    #particles {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background: radial-gradient(ellipse 80% 60% at 80% 10%, rgba(245,166,35,0.07) 0%, transparent 60%),
+                  radial-gradient(ellipse 60% 50% at 10% 80%, rgba(45,212,191,0.06) 0%, transparent 55%),
+                  var(--navy);
+    }
+    .dot-grid {
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(45,212,191,0.15) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+      animation: drift 20s linear infinite;
+    }
+    @keyframes drift { from { background-position: 0 0; } to { background-position: 40px 40px; } }
+
+    /* ── LAYOUT ── */
+    section { position: relative; z-index: 1; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(5,13,31,0.85);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      padding: 18px 0;
+    }
+    nav .container { display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; color: var(--amber); letter-spacing: -0.5px; }
+    .logo span { color: var(--teal); }
+    .nav-cta {
+      background: var(--amber); color: var(--navy); border: none; padding: 10px 24px;
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.85rem;
+      border-radius: 4px; cursor: pointer; letter-spacing: 0.5px; text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.85; }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: flex; align-items: center;
+      padding: 120px 0 80px;
+      overflow: hidden;
+    }
+    .hero-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(45,212,191,0.1); border: 1px solid var(--teal);
+      color: var(--teal); font-size: 0.75rem; font-weight: 500; letter-spacing: 1.5px;
+      text-transform: uppercase; padding: 6px 14px; border-radius: 2px; margin-bottom: 24px;
+    }
+    .hero-title {
+      font-size: clamp(2.4rem, 5vw, 3.8rem); font-weight: 800; line-height: 1.08;
+      letter-spacing: -1.5px; margin-bottom: 24px;
+    }
+    .hero-title em { font-style: normal; color: var(--amber); }
+    .hero-sub { color: var(--muted); font-size: 1.1rem; line-height: 1.7; max-width: 440px; margin-bottom: 36px; }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--amber); color: var(--navy); padding: 14px 32px;
+      font-family: 'Syne', sans-serif; font-weight: 700; border-radius: 4px;
+      text-decoration: none; font-size: 0.9rem; letter-spacing: 0.3px; transition: transform 0.2s, opacity 0.2s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); opacity: 0.9; }
+    .btn-ghost {
+      border: 1px solid var(--border); color: var(--teal); padding: 14px 32px;
+      font-family: 'Syne', sans-serif; font-weight: 600; border-radius: 4px;
+      text-decoration: none; font-size: 0.9rem; letter-spacing: 0.3px; transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-ghost:hover { background: rgba(45,212,191,0.08); border-color: var(--teal); }
+
+    /* hero stats */
+    .hero-stats { display: flex; flex-direction: column; gap: 16px; }
+    .stat-card {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      border-radius: 8px; padding: 20px 24px;
+      animation: fadeUp 0.8s ease both;
+    }
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.25s; border-left: 3px solid var(--amber); }
+    .stat-card:nth-child(3) { animation-delay: 0.4s; border-left: 3px solid var(--teal); }
+    .stat-num { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; line-height: 1; }
+    .stat-num.amber { color: var(--amber); }
+    .stat-num.pink  { color: var(--pink); }
+    .stat-num.teal  { color: var(--teal); }
+    .stat-label { color: var(--muted); font-size: 0.85rem; margin-top: 6px; }
+    .stat-tag { font-size: 0.7rem; color: var(--amber); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-top: 8px; }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── SECTION HEADINGS ── */
+    .section-label {
+      font-size: 0.7rem; letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--teal); font-weight: 600; margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem); font-weight: 800; letter-spacing: -0.8px; line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .section-sub { color: var(--muted); font-size: 1.05rem; line-height: 1.7; max-width: 580px; }
+
+    /* ── PROBLEM SECTION ── */
+    #problem { padding: 100px 0; }
+    #problem .container { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+    .problem-text .section-title em { color: var(--amber); font-style: normal; }
+    .gap-box {
+      margin-top: 32px;
+      background: rgba(245,166,35,0.06); border: 1px solid rgba(245,166,35,0.3);
+      border-radius: 6px; padding: 20px 24px;
+    }
+    .gap-box strong { color: var(--amber); }
+    .gap-box p { color: var(--muted); font-size: 0.95rem; line-height: 1.6; margin-top: 6px; }
+
+    /* ── VIDEO SECTION ── */
+    #video { padding: 80px 0; background: linear-gradient(180deg, transparent, rgba(45,212,191,0.03), transparent); }
+    #video .container { text-align: center; }
+    #video .section-title { margin: 0 auto 12px; }
+    #video .section-sub { margin: 0 auto 40px; }
+    .video-wrap {
+      position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;
+      border-radius: 10px; border: 1px solid var(--border);
+      box-shadow: 0 0 60px rgba(45,212,191,0.1);
+      max-width: 840px; margin: 0 auto;
+    }
+    .video-wrap video {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      border-radius: 10px;
+    }
+
+    /* ── HOW IT WORKS ── */
+    #how { padding: 100px 0; }
+    #how .container { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+    .layer-diagram { display: flex; flex-direction: column; gap: 12px; }
+    .layer {
+      border-radius: 6px; padding: 16px 20px; font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 600;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .layer-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .layer.ui    { background: rgba(120,60,180,0.15); border: 1px solid rgba(120,60,180,0.4); }
+    .layer.brizme{ background: rgba(45,212,191,0.12); border: 1px solid rgba(45,212,191,0.5); color: var(--teal); }
+    .layer.apps  { background: rgba(30,100,60,0.15); border: 1px solid rgba(60,180,80,0.35); }
+    .layer.llm   { background: rgba(40,80,160,0.15); border: 1px solid rgba(60,120,200,0.35); }
+    .arrow-down { text-align: center; color: var(--teal); font-size: 1.2rem; opacity: 0.6; }
+    .layer-desc { margin-top: 10px; color: var(--muted); font-size: 0.85rem; line-height: 1.5; font-style: italic; text-align: center; }
+
+    /* ── USE CASES ── */
+    #usecases { padding: 100px 0; }
+    #usecases > .container > .section-sub { margin-bottom: 60px; }
+    .cases-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .case-card {
+      background: var(--navy2); border: 1px solid var(--border); border-radius: 10px; padding: 32px;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .case-card:hover { border-color: var(--teal); transform: translateY(-3px); }
+    .case-num { font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--teal); font-weight: 600; margin-bottom: 12px; }
+    .case-title { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; }
+    .case-body { color: var(--muted); font-size: 0.9rem; line-height: 1.65; margin-bottom: 20px; }
+    .before-after { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.82rem; }
+    .ba-col { background: rgba(255,255,255,0.03); border-radius: 6px; padding: 12px; }
+    .ba-head { font-weight: 600; letter-spacing: 0.5px; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 8px; }
+    .ba-head.red  { color: #e05050; }
+    .ba-head.green { color: var(--teal); }
+    .ba-col li { list-style: none; color: var(--muted); padding: 3px 0; }
+    .ba-col li::before { content: '·  '; }
+    .example-bar {
+      margin-top: 20px; background: rgba(45,212,191,0.06); border: 1px solid rgba(45,212,191,0.2);
+      border-radius: 5px; padding: 12px 16px; font-size: 0.82rem; color: var(--muted); line-height: 1.5;
+    }
+    .example-bar strong { color: var(--teal); }
+
+    /* ── BENEFITS ── */
+    #benefits { padding: 100px 0; background: linear-gradient(180deg, transparent, rgba(245,166,35,0.03), transparent); }
+    .benefits-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 60px; }
+    .benefit-card {
+      background: var(--navy2); border: 1px solid var(--border); border-radius: 10px; padding: 28px;
+      transition: border-color 0.3s;
+    }
+    .benefit-card:hover { border-color: var(--amber); }
+    .benefit-icon { width: 40px; height: 40px; border-radius: 8px; background: rgba(245,166,35,0.12); border: 1px solid rgba(245,166,35,0.3); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: 16px; }
+    .benefit-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 8px; color: var(--amber); }
+    .benefit-body { color: var(--muted); font-size: 0.88rem; line-height: 1.6; }
+
+    /* ── COMPARE ── */
+    #compare { padding: 100px 0; }
+    .compare-table { margin-top: 50px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+    .compare-header { display: grid; grid-template-columns: 1.2fr 1fr 1fr; background: var(--navy3); }
+    .compare-header div { padding: 18px 24px; font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 700; }
+    .compare-header .col-without { color: #e05050; }
+    .compare-header .col-with    { color: var(--teal); }
+    .compare-row { display: grid; grid-template-columns: 1.2fr 1fr 1fr; border-top: 1px solid var(--border); }
+    .compare-row:hover { background: rgba(255,255,255,0.02); }
+    .compare-row div { padding: 16px 24px; font-size: 0.88rem; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+    .compare-row .label { color: var(--white); font-weight: 500; }
+    .x { color: #e05050; font-size: 1rem; }
+    .check { color: var(--teal); font-size: 1rem; }
+
+    /* ── CTA ── */
+    #cta {
+      padding: 120px 0;
+      text-align: center;
+      background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(45,212,191,0.06) 0%, transparent 70%);
+    }
+    #cta .section-title { font-size: clamp(2rem, 4vw, 3rem); margin: 0 auto 16px; }
+    #cta .section-sub { margin: 0 auto 40px; }
+    .cta-email {
+      font-size: 1rem; color: var(--teal); text-decoration: none;
+      border-bottom: 1px solid rgba(45,212,191,0.4); padding-bottom: 2px;
+      transition: border-color 0.2s;
+    }
+    .cta-email:hover { border-color: var(--teal); }
+    .cta-actions { display: flex; gap: 16px; justify-content: center; margin-top: 40px; flex-wrap: wrap; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 0; text-align: center;
+      color: var(--muted); font-size: 0.82rem;
+    }
+    footer .logo { font-size: 1.1rem; margin-bottom: 8px; display: block; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 800px) {
+      .hero-inner, #problem .container, #how .container { grid-template-columns: 1fr; gap: 40px; }
+      .cases-grid { grid-template-columns: 1fr; }
+      .benefits-grid { grid-template-columns: 1fr 1fr; }
+      .compare-header, .compare-row { grid-template-columns: 1fr 1fr; }
+      .compare-header div:first-child, .compare-row div:first-child { display: none; }
+    }
+    @media (max-width: 520px) {
+      .benefits-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="particles"><div class="dot-grid"></div></div>
+
+<!-- NAV -->
+<nav>
+  <div class="container">
+    <span class="logo">briz<span>Me</span></span>
+    <a href="#cta" class="nav-cta">Get in Touch</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-badge">AI Infrastructure Layer</div>
+        <h1 class="hero-title">Built to Click,<br><em>Not to Converse.</em></h1>
+        <p class="hero-sub">Enterprise software is still stuck in the Google era. brizMe is the missing conversational orchestration layer — connecting your existing apps and AI models into a ChatGPT-like experience, without a line of code.</p>
+        <div class="hero-actions">
+          <a href="#video" class="btn-primary">Watch the Demo</a>
+          <a href="#cta" class="btn-ghost">Talk to Us</a>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-card">
+          <div class="stat-num pink">300M+</div>
+          <div class="stat-label">people already interact with AI conversationally every day</div>
+          <div class="stat-tag">The shift is already here</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num amber">60%</div>
+          <div class="stat-label">of enterprise AI projects will be abandoned</div>
+          <div class="stat-tag">Because software didn't adapt</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num teal">$558B</div>
+          <div class="stat-label">enterprise AI market by 2035 — budget is flowing now</div>
+          <div class="stat-tag">The prize for whoever bridges the gap</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="container">
+    <div class="problem-text">
+      <div class="section-label">The Problem</div>
+      <h2 class="section-title">The interface layer<br><em>is the bottleneck</em></h2>
+      <p class="section-sub">Google changed how we find information. ChatGPT changed how we interact with it. Enterprise software is still stuck in the Google era.</p>
+      <div class="gap-box">
+        <strong>The gap:</strong>
+        <p>Enterprises have the budget and the AI models — but their software is still built for clicking, not conversing.</p>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">The Solution</div>
+      <h2 class="section-title">brizMe – The AI Layer That Was Missing</h2>
+      <p class="section-sub">The LLMs exist. Your apps exist. The layer connecting them into a ChatGPT-like experience doesn't — until now.</p>
+      <p style="color:var(--teal); font-family:'Syne',sans-serif; font-size:0.85rem; margin-top:24px; font-weight:600; letter-spacing:0.5px;">brizMe is infrastructure — not a feature. Every app on earth needs this layer.</p>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEO -->
+<section id="video">
+  <div class="container">
+    <div class="section-label">See It In Action</div>
+    <h2 class="section-title">Watch the Demo</h2>
+    <p class="section-sub">See how brizMe connects your existing systems into a unified conversational experience in minutes.</p>
+    <div class="video-wrap">
+      <video controls poster="">
+        <source src="demo.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="container">
+    <div>
+      <div class="section-label">Architecture</div>
+      <h2 class="section-title">One layer. Every system. Instant conversation.</h2>
+      <p class="section-sub">brizMe sits between your user interfaces and your existing backends — routing intent to the right systems and returning conversational responses, with no changes to your stack.</p>
+    </div>
+    <div>
+      <div class="layer-diagram">
+        <div class="layer ui"><div class="layer-dot" style="background:#9060d0;"></div>User Interfaces — Web · Mobile · ChatGPT-like</div>
+        <div class="arrow-down">↓</div>
+        <div class="layer brizme"><div class="layer-dot" style="background:var(--teal);"></div>brizMe — Conversational Orchestration Layer</div>
+        <div class="arrow-down" style="display:flex; gap:60px; justify-content:center;"><span>↓</span><span>↓</span></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div class="layer apps"><div class="layer-dot" style="background:#4db870;"></div>App Backends — CRM · ERP · HRMS</div>
+          <div class="layer llm"><div class="layer-dot" style="background:#4080e0;"></div>AI / LLMs — ChatGPT · Claude · Gemini</div>
+        </div>
+        <p class="layer-desc">Your existing stack, untouched. A new experience on top.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section id="usecases">
+  <div class="container">
+    <div class="section-label">Use Cases</div>
+    <h2 class="section-title">Where it pays off — immediately</h2>
+    <p class="section-sub">brizMe delivers measurable impact across the most common enterprise workflows, without rebuilding anything.</p>
+    <div class="cases-grid">
+
+      <div class="case-card">
+        <div class="case-num">Use Case 01 — Customer Support</div>
+        <h3 class="case-title">What if your customers could help themselves?</h3>
+        <p class="case-body">Most support calls answer the same questions a human already answered yesterday. brizMe gives customers instant, conversational access to the same data your agents have — 24/7, without the queue.</p>
+        <div class="before-after">
+          <div class="ba-col">
+            <div class="ba-head red">Today</div>
+            <ul><li>Waits on hold</li><li>Agent lookup</li><li>$15 / interaction</li><li>Business hours only</li></ul>
+          </div>
+          <div class="ba-col">
+            <div class="ba-head green">With brizMe</div>
+            <ul><li>Asks conversationally</li><li>Instant live answer</li><li>~$1–3 / interaction</li><li>Available 24/7</li></ul>
+          </div>
+        </div>
+        <div class="example-bar"><strong>Example:</strong> 10M calls/year × $15 × 80% deflection = <strong style="color:var(--amber);">$120M annual saving</strong></div>
+      </div>
+
+      <div class="case-card">
+        <div class="case-num">Use Case 02 — Field Operations</div>
+        <h3 class="case-title">Give your field teams a brain in their pocket</h3>
+        <p class="case-body">Field workers spend hours each week navigating portals and waiting for back-office answers. brizMe puts conversational access to every relevant system in their hand — in the field, in real time.</p>
+        <div class="before-after">
+          <div class="ba-col">
+            <div class="ba-head red">Today</div>
+            <ul><li>Call office for stock</li><li>Manual forms</li><li>Return trips</li><li>Hours lost/week</li></ul>
+          </div>
+          <div class="ba-col">
+            <div class="ba-head green">With brizMe</div>
+            <ul><li>"Is part #4471 near me?"</li><li>Instant ERP/CRM answer</li><li>Logged conversationally</li><li>First-visit resolution ↑</li></ul>
+          </div>
+        </div>
+        <div class="example-bar"><strong>Example:</strong> 500 people × 3hrs/week = <strong style="color:var(--amber);">78,000 productive hours/year</strong></div>
+      </div>
+
+      <div class="case-card">
+        <div class="case-num">Use Case 03 — Employee Onboarding & HR</div>
+        <h3 class="case-title">Stop making new hires ask their manager where to find things</h3>
+        <p class="case-body">The average new employee asks 100+ questions in their first month. Most answers already exist in your systems. brizMe makes those answers instantly accessible — without burdening HR.</p>
+        <div class="before-after">
+          <div class="ba-col">
+            <div class="ba-head red">Today</div>
+            <ul><li>HR inbox flooded</li><li>Onboarding takes weeks</li><li>Inconsistent answers</li><li>Manager time consumed</li></ul>
+          </div>
+          <div class="ba-col">
+            <div class="ba-head green">With brizMe</div>
+            <ul><li>"What's my leave balance?"</li><li>"How do I submit expenses?"</li><li>Consistent, instant answers</li><li>HR on high-value work</li></ul>
+          </div>
+        </div>
+        <div class="example-bar">Connects to your <strong>HRMS, policy docs, and intranet</strong> — one interface for everything</div>
+      </div>
+
+      <div class="case-card">
+        <div class="case-num">Use Case 04 — Sales & Account Management</div>
+        <h3 class="case-title">Your CRM has the answers. Your reps shouldn't have to dig.</h3>
+        <p class="case-body">Sales teams toggle between CRM, ERP, email, and spreadsheets just to answer one customer question. brizMe unifies that — so reps spend time selling, not searching.</p>
+        <div class="before-after">
+          <div class="ba-col">
+            <div class="ba-head red">Today</div>
+            <ul><li>4+ systems per query</li><li>Manual pipeline updates</li><li>Delayed answers</li><li>CRM data goes stale</li></ul>
+          </div>
+          <div class="ba-col">
+            <div class="ba-head green">With brizMe</div>
+            <ul><li>"Acme's order status?"</li><li>Update CRM via chat</li><li>Cross-system answers</li><li>Data current automatically</li></ul>
+          </div>
+        </div>
+        <div class="example-bar"><strong>Example:</strong> 200 reps × 45 min/day saved = <strong style="color:var(--amber);">25 additional headcount equivalent</strong></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- BENEFITS -->
+<section id="benefits">
+  <div class="container">
+    <div class="section-label">Why brizMe</div>
+    <h2 class="section-title">Solution benefits</h2>
+    <p class="section-sub">Your domain expertise + our platform = better customer experiences</p>
+    <div class="benefits-grid">
+      <div class="benefit-card">
+        <div class="benefit-icon">⚡</div>
+        <div class="benefit-title">10x Faster Time-to-Value</div>
+        <div class="benefit-body">Go live in weeks, not 12–18 months. 70% of the platform is already built.</div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">🔌</div>
+        <div class="benefit-title">Near-Zero Integration Overhead</div>
+        <div class="benefit-body">No heavy lift for internal teams. We integrate on top of what already exists.</div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">🏗️</div>
+        <div class="benefit-title">No Rebuild Required</div>
+        <div class="benefit-body">Works on top of existing systems and workflows — nothing gets thrown away.</div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">✅</div>
+        <div class="benefit-title">Production-Ready from Day One</div>
+        <div class="benefit-body">Repeatable, proven architecture. No custom build cycles, no surprises.</div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">🤝</div>
+        <div class="benefit-title">We Work Alongside Your Team</div>
+        <div class="benefit-body">We design conversational experiences together — your knowledge, our platform.</div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-icon">🔄</div>
+        <div class="benefit-title">Always on the Latest Stack</div>
+        <div class="benefit-body">AI moves fast. We stay current so you don't have to — MCP, RAG, agents and beyond.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section id="compare">
+  <div class="container">
+    <div class="section-label">The Difference</div>
+    <h2 class="section-title">You don't have to start over</h2>
+    <p class="section-sub">brizMe adds a conversational layer on top of what you already have.</p>
+    <div class="compare-table">
+      <div class="compare-header">
+        <div></div>
+        <div class="col-without">Without brizMe</div>
+        <div class="col-with">With brizMe</div>
+      </div>
+      <div class="compare-row">
+        <div class="label">Timeline</div>
+        <div><span class="x">✕</span> 12–18 month AI project</div>
+        <div><span class="check">→</span> Live in 4 weeks</div>
+      </div>
+      <div class="compare-row">
+        <div class="label">Your Team</div>
+        <div><span class="x">✕</span> Diverted from core business</div>
+        <div><span class="check">→</span> Stays focused on what matters</div>
+      </div>
+      <div class="compare-row">
+        <div class="label">AI Stack</div>
+        <div><span class="x">✕</span> Constant retraining required</div>
+        <div><span class="check">→</span> We stay current for you</div>
+      </div>
+      <div class="compare-row">
+        <div class="label">Risk</div>
+        <div><span class="x">✕</span> No guaranteed outcome</div>
+        <div><span class="check">→</span> Proven, repeatable architecture</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="container">
+    <div class="section-label">Get Started</div>
+    <h2 class="section-title">Let's identify one use<br>case together</h2>
+    <p class="section-sub">You don't need to solve this alone. That's exactly what brizMe — your trusted partner — is here for. Reach out and let's find the highest-impact starting point for your business.</p>
+    <div class="cta-actions">
+      <a href="mailto:bojan.likar@gmail.com" class="btn-primary">Contact Us</a>
+      <a href="#usecases" class="btn-ghost">Explore Use Cases</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <span class="logo">briz<span>Me</span></span>
+    <p>The Missing AI Infrastructure Layer, Without a Line of Code</p>
+  </div>
+</footer>
+
+</body>
+</html>
