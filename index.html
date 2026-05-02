@@ -105,22 +105,7 @@
     }
     .btn-ghost:hover { background: rgba(45,212,191,0.08); border-color: var(--teal); }
 
-    /* hero stats */
-    .hero-stats { display: flex; flex-direction: column; gap: 16px; }
-    .stat-card {
-      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-      border-radius: 8px; padding: 20px 24px;
-      animation: fadeUp 0.8s ease both;
-    }
-    .stat-card:nth-child(1) { animation-delay: 0.1s; }
-    .stat-card:nth-child(2) { animation-delay: 0.25s; border-left: 3px solid var(--amber); }
-    .stat-card:nth-child(3) { animation-delay: 0.4s; border-left: 3px solid var(--teal); }
-    .stat-num { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; line-height: 1; }
-    .stat-num.amber { color: var(--amber); }
-    .stat-num.pink  { color: var(--pink); }
-    .stat-num.teal  { color: var(--teal); }
-    .stat-label { color: var(--muted); font-size: 0.85rem; margin-top: 6px; }
-    .stat-tag { font-size: 0.7rem; color: var(--amber); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-top: 8px; }
+    .hero-inner { grid-template-columns: 1fr !important; max-width: 680px; }
 
     @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -286,29 +271,13 @@
       <div>
         <div class="hero-badge">AI Infrastructure Layer</div>
         <h1 class="hero-title">Built to Click,<br><em>Not to Converse.</em></h1>
-        <p class="hero-sub">Enterprise software is still stuck in the Google era. brizMe is the missing conversational orchestration layer — connecting your existing apps and AI models into a ChatGPT-like experience, without a line of code.</p>
+        <p class="hero-sub">Your apps and AI models are ready. brizMe is the conversational orchestration layer that connects them — giving your users a ChatGPT-like experience on top of the systems you already have, without a line of code.</p>
         <div class="hero-actions">
           <a href="#video" class="btn-primary">Watch the Demo</a>
           <a href="#cta" class="btn-ghost">Talk to Us</a>
         </div>
       </div>
-      <div class="hero-stats">
-        <div class="stat-card">
-          <div class="stat-num pink">300M+</div>
-          <div class="stat-label">people already interact with AI conversationally every day</div>
-          <div class="stat-tag">The shift is already here</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num amber">60%</div>
-          <div class="stat-label">of enterprise AI projects will be abandoned</div>
-          <div class="stat-tag">Because software didn't adapt</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-num teal">$558B</div>
-          <div class="stat-label">enterprise AI market by 2035 — budget is flowing now</div>
-          <div class="stat-tag">The prize for whoever bridges the gap</div>
-        </div>
-      </div>
+
     </div>
   </div>
 </section>
@@ -318,12 +287,8 @@
   <div class="container">
     <div class="problem-text">
       <div class="section-label">The Problem</div>
-      <h2 class="section-title">The interface layer<br><em>is the bottleneck</em></h2>
-      <p class="section-sub">Google changed how we find information. ChatGPT changed how we interact with it. Enterprise software is still stuck in the Google era.</p>
-      <div class="gap-box">
-        <strong>The gap:</strong>
-        <p>Enterprises have the budget and the AI models — but their software is still built for clicking, not conversing.</p>
-      </div>
+      <h2 class="section-title">Your users expect to<br><em>talk to software</em></h2>
+      <p class="section-sub">Siri. Alexa. ChatGPT. Conversational interfaces have become the new normal. Giving your users that same experience — on top of the tools they already use — is the next step forward.</p>
     </div>
     <div>
       <div class="section-label">The Solution</div>
